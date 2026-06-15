@@ -6,12 +6,9 @@
 
 void AHK9_GameStateBase::GameOverCallWidget_Implementation(const FString& GameOverText)
 {
-	if (!HasAuthority())
+	AHK9_PlayerController* PC = GetWorld()->GetFirstPlayerController<AHK9_PlayerController>();
+	if (IsValid(PC))
 	{
-		AHK9_PlayerController* PC = GetWorld()->GetFirstPlayerController<AHK9_PlayerController>();
-		if (IsValid(PC))
-		{
-			PC->CallGameOverWidget(GameOverText);
-		}
+		PC->CallGameOverWidget(GameOverText);
 	}
 }

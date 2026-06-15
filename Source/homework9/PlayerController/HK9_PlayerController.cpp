@@ -57,6 +57,10 @@ void AHK9_PlayerController::SetChatMessageSrting_Implementation(const FString& I
 					GMB->CheckGameResult(Result[0] - '0', this);
 					PrintChatMessageString(Result);
 				}
+				else
+				{
+					InputCountConsumedMessage();
+				}
 			}
 		}
 	}
@@ -65,7 +69,7 @@ void AHK9_PlayerController::SetChatMessageSrting_Implementation(const FString& I
 void AHK9_PlayerController::PrintChatMessageString_Implementation(const FString& InChatMessageString)
 {
 	UE_LOG(LogTemp, Warning, TEXT("PrintChat: %s"), *InChatMessageString);
-	if (!HasAuthority())
+	if (IsLocalController())
 	{
 		UKismetSystemLibrary::PrintString(this, InChatMessageString, true, false, FLinearColor::Blue, 5.0f);
 	}
@@ -76,20 +80,30 @@ void AHK9_PlayerController::CheckFaliedMessage_Implementation()
 	if (!HasAuthority())
 	{
 		ChatMessageString = TEXT("다시 입력하세요");
-		//UE_LOG(LogTemp, Warning, TEXT("다시 입력하세요"))
+		
 		UKismetSystemLibrary::PrintString(this, ChatMessageString, true, false, FLinearColor::Blue, 5.0f);
 	}
 }
 
+void AHK9_PlayerController::InputCountConsumedMessage_Implementation()
+{
+	FString InputCountConsumedMessage = TEXT("입력 횟수를 모두 소모했습니다");
+
+	UKismetSystemLibrary::PrintString(this, InputCountConsumedMessage, true, false, FLinearColor::Green, 5.0f);
+}
+
 void AHK9_PlayerController::CallGameOverWidget(const FString& GameOverText)
 {
-	if (IsValid(GameOverWidgetClass))
+	if (IsLocalController())
 	{
-		GameOverWidgetInstance = CreateWidget<UHK9_GameOverWidget>(this, GameOverWidgetClass);
-		if (IsValid(GameOverWidgetInstance))
+		if (IsValid(GameOverWidgetClass))
 		{
-			GameOverWidgetInstance->SetGameOverText(GameOverText);
-			GameOverWidgetInstance->AddToViewport();
+			GameOverWidgetInstance = CreateWidget<UHK9_GameOverWidget>(this, GameOverWidgetClass);
+			if (IsValid(GameOverWidgetInstance))
+			{
+				GameOverWidgetInstance->SetGameOverText(GameOverText);
+				GameOverWidgetInstance->AddToViewport();
+			}
 		}
 	}
 }
@@ -101,6 +115,6 @@ void AHK9_PlayerController::RequestGameRestart_Implementation()
 	if (IsValid(GM))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Valid GM"))
-		UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), false);
+		UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), true);
 	}
 }

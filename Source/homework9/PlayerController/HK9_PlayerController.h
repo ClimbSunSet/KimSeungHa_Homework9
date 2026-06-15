@@ -26,6 +26,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CheckFaliedMessage();
 
+	UFUNCTION(Client, Reliable)
+	void InputCountConsumedMessage();
+
 	UFUNCTION()
 	void CallGameOverWidget(const FString& GameOverText);
 
